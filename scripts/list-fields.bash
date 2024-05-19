@@ -62,12 +62,6 @@ function extract_field_name() {
             echo $LINE | cut -c 1-$INDEX
             return
         fi
-        if [[ $CHARACTER == ' ' ]];
-        then
-            let INDEX=$INDEX-1
-            echo $LINE | cut -c 1-$INDEX
-            return
-        fi
         let INDEX=$INDEX+1
     done
 }
