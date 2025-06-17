@@ -41,7 +41,7 @@ parse_arguments() {
         ((ARGUMENT_INDEX++))
         # Jump over the first two arguments as they're:
         #  1) the script's name
-        # 2) the name of the action
+        #  2) the name of the action
         if [[ $ARGUMENT_INDEX < 2 ]];
         then
             continue
@@ -190,12 +190,34 @@ get_value() {
             fi
             CURRENT_KEY_NAME=$(echo $LINE | cut -d= -f1 -)
 
-            # Cut away the possible space between
+            # Cut away the possible spaces between
             # the key and the equals sign.
             CURRENT_KEY_NAME=$(echo $CURRENT_KEY_NAME | cut -d' ' -f1- -)
+
             if [[ $CURRENT_KEY_NAME == $KEY_NAME ]];
             then
-                echo $LINE | cut -d' ' -f3- - >> $OUTPUT
+                RAW_FIELD=$(echo $LINE | cut -d' ' -f3- -)
+
+                # Remove the quotation marks in front of and after the field
+                FIRST_CHARACTER=${RAW_FIELD:0:1}
+                LAST_CHARACTER=${RAW_FIELD:((${#RAW_FIELD}-1)):1}
+                if [[ $FIRST_CHARACTER == "\"" ]];
+                then
+                    if [[ $LAST_CHARACTER == "\"" ]];
+                    then
+                        ((LAST_WANTED_CHAR=${#RAW_FIELD}-1))
+                        RAW_FIELD=$(echo $RAW_FIELD | cut -c 2-$LAST_WANTED_CHAR)
+                    fi
+                fi
+                if [[ $FIRST_CHARACTER == "'" ]];
+                then
+                    if [[ $LAST_CHARACTER == "'" ]];
+                    then
+                        ((LAST_WANTED_CHAR=${#RAW_FIELD}-1))
+                        RAW_FIELD=$(echo $RAW_FIELD | cut -c 2-$LAST_WANTED_CHAR)
+                    fi
+                fi
+                echo $RAW_FIELD >> $OUTPUT
             fi
         fi
     done <$INI_FILE
